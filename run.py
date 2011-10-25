@@ -48,12 +48,15 @@ def main():
     data = Data('data')
     data.addColumn('string', 'Year - Month')
     data.addColumn('number', 'Active Contributors')
+    data.addColumn('number', 'Commits')
     data.addRows(len(list(stats.iter_history_months())))
     
     for index, value in enumerate(stats.iter_active_author_count_by_month()):
         year, month, authorcount = value
         data.setValue(index, 0, '%s - %s' % (year, month))
         data.setValue(index, 1, authorcount)
+        commits = len(stats.get_commits_by_month(year, month))
+        data.setValue(index, 2, commits)
     
     context = {
         'data': data,

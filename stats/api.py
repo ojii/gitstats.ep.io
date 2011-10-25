@@ -103,3 +103,7 @@ class RepoStatistics(object):
     def iter_active_author_count_by_month(self):
         for year, month, authors in self.iter_active_authors_by_month():
             yield year, month, len(authors)
+            
+    def iter_commit_count_by_month(self):
+        for year, month in self.iter_history_months():
+            yield year, month, len(self.get_commits_by_month(year, month))
