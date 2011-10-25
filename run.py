@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import json
 from stats.core import Repo
-
+import argparse
 
 class Data(object):
     def __init__(self, varname):
@@ -41,8 +41,8 @@ page_template = """
 </html>
 """
 
-def main():
-    repo = Repo('/home/jonas/workspace/django-cms')
+def main(repopath):
+    repo = Repo(repopath)
     stats = repo.get_stats()
     
     data = Data('data')
@@ -66,4 +66,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('repopath', help='Path to a git repo')
+    args = parser.parse_args()
+    main(repopath=args.repopath)
