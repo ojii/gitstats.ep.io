@@ -58,7 +58,7 @@ def main():
     context = {
         'data': data,
     }
-    with open('index.html', 'w') as fobj:
+    with open('static/index.html', 'w') as fobj:
         fobj.write(page_template % context)
 
 
