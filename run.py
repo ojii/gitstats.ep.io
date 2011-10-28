@@ -10,14 +10,18 @@ def render(**context):
     from django import template
     return template.Template("""
     <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Git Statistics</title>
+        </head>
+        <body>
+            <div id="chart1" style="width: 100%; height: 400px">Loading...</div>
+            <div id="chart2" style="width: 100%; height: 400px">Loading...</div>
+        </body>
         <script src="https://ajax.googleapis.com/ajax/libs/mootools/1.3.0/mootools-yui-compressed.js" type="text/javascript"></script>
         <script src="js/adapters/mootools-adapter.js" type="text/javascript"></script>
         <script src="js/highcharts.js" type="text/javascript"></script>
         {{ charts|safe }}
-        <body>
-            <div id="chart1" style="width: 100%; height: 400px"></div>
-            <div id="chart2" style="width: 100%; height: 400px"></div>
-        </body>
     </html>
     """).render(template.Context(context))
 
