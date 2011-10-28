@@ -32,7 +32,10 @@ class RepoStatistics(object):
         return delta.days
     
     def get_active_days_count(self):
-        pass
+        days = set()
+        for commit in self.get_commits():
+            days.add(commit_dt(commit.commit_d).strftime('%Y-%m-%d'))
+        return len(days)
     
     @simple_method_cacher
     def get_active_day_percentage(self):
@@ -62,8 +65,16 @@ class RepoStatistics(object):
     def get_average_commits_per_day(self):
         return float(self.get_commit_count()) / float(self.get_age())
     
+    @simple_method_cacher
+    def get_authors(self):
+        authors = set()
+        for commit in self.get_commits():
+            authors.add(commit.author)
+        return authors
+    
+    @simple_method_cacher
     def get_author_count(self):
-        pass
+        return len(self.get_authors())
     
     @simple_method_cacher
     def get_average_commits_per_author(self):

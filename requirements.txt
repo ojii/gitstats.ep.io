@@ -1,2 +1,3 @@
 dulwich
 python-dateutil
+django

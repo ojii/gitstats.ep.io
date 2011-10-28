@@ -1,68 +1,84 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import json
 from stats.core import Repo
 import argparse
 
-class Data(object):
-    def __init__(self, varname):
-        self.varname = varname
-        self.lines = []
-        
-    def _write(self, method, *args):
-        formatted_args = ', '.join([json.dumps(arg) for arg in args])
-        self.lines.append('%s.%s(%s);' % (self.varname, method, formatted_args))
-        
-    def __getattr__(self, attr):
-        def deco(*args):
-            self._write(attr, *args)
-        return deco
-    
-    def __str__(self):
-        return '\n'.join(self.lines)
 
+def render(**context):
+    from django import template
+    return template.Template("""
+    <html>
+        <script src="https://ajax.googleapis.com/ajax/libs/mootools/1.3.0/mootools-yui-compressed.js" type="text/javascript"></script>
+        <script src="js/adapters/mootools-adapter.js" type="text/javascript"></script>
+        <script src="js/highcharts.js" type="text/javascript"></script>
+        {{ charts|safe }}
+        <body>
+            <div id="chart1" style="width: 100%; height: 400px"></div>
+            <div id="chart2" style="width: 100%; height: 400px"></div>
+        </body>
+    </html>
+    """).render(template.Context(context))
 
-page_template = """
-<html>
-    <script src="https://www.google.com/jsapi" type="text/javascript"></script>
-    <script>
-        google.load("visualization", "1", {packages:["corechart"]});
-        google.setOnLoadCallback(drawChart);
-        function drawChart() {
-            var data = new google.visualization.DataTable();
-            %(data)s
-            var chart = new google.visualization.LineChart(document.getElementById('chart'));
-            chart.draw(data, {width: 800, height: 600, title: 'django CMS contributors over time'});
-        }
-    </script>
-    <body>
-        <div id="chart"></div>
-    </body>
-</html>
-"""
 
 def main(repopath):
+    from django.conf import settings
+    settings.configure()
+    from highcharts.core import Charts
+    
     repo = Repo(repopath)
     stats = repo.get_stats()
+    active_authors = []
+    commits = []
+    cumulative_authors = []
+    total_authors = set()
+
+    for year, month in stats.iter_history_months():
+        authorcount = stats.get_active_author_count_by_month(year, month)
+        active_authors.append(authorcount)
+        commitcount = len(stats.get_commits_by_month(year, month))
+        commits.append(commitcount)
+        authors = stats.get_active_authors_by_month(year, month)
+        total_authors.update(authors)
+        cumulative_authors.append(len(total_authors))
+
+    charts = Charts()
+    charts.addChart('chart1').chart(
+        renderTo='chart1',
+        zoomType='x',
+    ).title(
+        text='django CMS git stats'
+    ).yAxis.append({
+        'title': {
+            'text': 'Active authors',
+        }
+    }).yAxis.append({
+        'title': {
+            'text': 'Cumulative authors',
+        }
+    }).yAxis.append({
+        'title': {
+            'text': 'Commits',
+        },
+        'opposite': True
+    }).series.append({
+        'name': 'Active authors',
+        'data': active_authors,
+        'type': 'line',
+        'yAxis': 0,
+    }).series.append({
+        'name': 'Cumulative authors',
+        'data': cumulative_authors,
+        'type': 'line',
+        'yAxis': 1,
+    }).series.append({
+        'name': 'Commits',
+        'data': commits,
+        'type': 'line',
+        'yAxis': 2,
+    })
     
-    data = Data('data')
-    data.addColumn('string', 'Year - Month')
-    data.addColumn('number', 'Active Contributors')
-    data.addColumn('number', 'Commits')
-    data.addRows(len(list(stats.iter_history_months())))
-    
-    for index, value in enumerate(stats.iter_active_author_count_by_month()):
-        year, month, authorcount = value
-        data.setValue(index, 0, '%s - %s' % (year, month))
-        data.setValue(index, 1, authorcount)
-        commits = len(stats.get_commits_by_month(year, month))
-        data.setValue(index, 2, commits)
-    
-    context = {
-        'data': data,
-    }
     with open('static/index.html', 'w') as fobj:
-        fobj.write(page_template % context)
+        fobj.write(render(charts=charts))
 
 
 if __name__ == '__main__':
