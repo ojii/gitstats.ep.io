@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 from stats.core import Repo
 import argparse
+import datetime
+import time
 
 
 def render(**context):
@@ -31,15 +33,16 @@ def main(repopath):
     commits = []
     cumulative_authors = []
     total_authors = set()
-
+    
     for year, month in stats.iter_history_months():
         authorcount = stats.get_active_author_count_by_month(year, month)
-        active_authors.append(authorcount)
         commitcount = len(stats.get_commits_by_month(year, month))
-        commits.append(commitcount)
         authors = stats.get_active_authors_by_month(year, month)
         total_authors.update(authors)
-        cumulative_authors.append(len(total_authors))
+        timestamp = time.mktime(datetime.date(year=year, month=month, day=1).timetuple()) * 1000
+        active_authors.append((timestamp, authorcount))
+        commits.append((timestamp, commitcount))
+        cumulative_authors.append((timestamp, len(total_authors)))
 
     charts = Charts()
     charts.addChart('chart1').chart(
@@ -60,6 +63,8 @@ def main(repopath):
             'text': 'Commits',
         },
         'opposite': True
+    }).xAxis.append({
+        'type': 'datetime',
     }).series.append({
         'name': 'Active authors',
         'data': active_authors,
@@ -70,11 +75,13 @@ def main(repopath):
         'data': cumulative_authors,
         'type': 'line',
         'yAxis': 1,
+        'xAxis': 0,
     }).series.append({
         'name': 'Commits',
         'data': commits,
         'type': 'line',
         'yAxis': 2,
+        'xAxis': 0,
     })
     
     with open('static/index.html', 'w') as fobj:
