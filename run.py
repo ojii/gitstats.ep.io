@@ -33,7 +33,7 @@ def render(**context):
         <script src="js/highcharts.js" type="text/javascript"></script>
         {{ charts|safe }}
     </html>
-    """).render(template.Context(context))
+    """).render(template.Context(context)).strip()
 
 
 def main(repopath):
