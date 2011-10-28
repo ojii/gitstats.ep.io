@@ -104,6 +104,8 @@ def main(repopath):
         'title': {
             'text': 'Cumulative commits',
         },
+    }).xAxis.append({
+        'type': 'datetime',
     }).series.append({
         'name': 'Commits by month',
         'data': commits,
