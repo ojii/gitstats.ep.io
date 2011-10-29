@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from dateutil import rrule
-from stats.utils import commit_dt, simple_method_cacher, complex_method_cacher
+from git_statistics.utils import commit_dt, simple_method_cacher, complex_method_cacher
 from collections import defaultdict
 import datetime
 

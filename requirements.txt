@@ -2,3 +2,4 @@ dulwich
 python-dateutil
 django
 south
+django-secure

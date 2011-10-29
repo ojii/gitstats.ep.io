@@ -1,27 +1,44 @@
 # -*- coding: utf-8 -*-
-import datetime
+from django.db.models.signals import pre_save
+from django.template.defaultfilters import slugify
+import os
+import subprocess
 
-def simple_method_cacher(method):
-    method.cache = {}
-    def _decorator(self, *args):
-        try:
-            value = method.cache[args]
-        except KeyError:
-            value = method(self, *args)
-            method.cache[args] = value
-        return value
-    _decorator.__name__ = 'simple_method_cacher(%s)' % method.__name__
-    return _decorator
+class Slugifier(object):
+    def __init__(self, model, target, source):
+        self.model = model
+        self.target = target
+        self.source = source
+        field = self.model._meta.get_field_by_name(self.target)[0]
+        self.max_length = field.max_length
+        
+    def __call__(self, instance, **kwargs):
+        if getattr(instance, self.target):
+            return
+        slug = slugify(getattr(instance, self.source))[:self.max_length]
+        current = slug
+        index = 0
+        while self.model.objects.filter(**{self.target: current}).exists():
+            suffix = '-%s' % index
+            current = '%s%s'  % (slug[:-len(suffix)], suffix)
+            index += 1
+        setattr(instance, self.target, current)
+    
 
-def complex_method_cacher(method):
-    method.cache = None
-    method.default = None
-    def _decorator(self, *args):
-        if method.cache is None:
-            method.cache, method.default = method(self, *args)
-        return method.cache.get(args, method.default)
-    _decorator.__name__ = 'complex_method_cacher(%s)' % method.__name__
-    return _decorator
+def auto_slug(model, target, source):
+    """
+    class MyModel(models.Model):
+        name = models.CharField(max_length=255)
+        slug = models.SlugField(max_length=255, null=True)
+        
+    auto_slug(MyModel, 'slug', 'name')
+    """
+    pre_save.connect(Slugifier(model, target, source), sender=model, weak=False)
 
-def commit_dt(commit):
-    return datetime.datetime.fromtimestamp(commit.commit_time)
+
+def update_git(repourl, repodir):
+    # TODO: do this with dulwich, not subprocess
+    if os.path.exists(repodir):
+        subprocess.check_call(['git', 'fetch', 'origin'], cwd=repodir)
+    else:
+        subprocess.check_call(['git', 'clone', repourl, repodir])

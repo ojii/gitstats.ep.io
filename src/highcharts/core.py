@@ -51,7 +51,7 @@ class Charts(object):
     
     def __str__(self):
         charts = '\n'.join([str(chart) for chart in self.charts])
-        return '<script type="text/javascript">window.addEvent("domready", function(){%s});</script>' % charts
+        return 'window.addEvent("domready", function(){%s});' % charts
     
     def addChart(self, name):
         chart = Chart(name)

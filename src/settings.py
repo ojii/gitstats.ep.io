@@ -16,12 +16,19 @@ SITE_ID = 1
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 WRITABLE_DIR = os.environ.get('EPIO_DATA_DIRECTORY', os.path.join(PROJECT_DIR, '..', 'data'))
+DATA_DIR = os.path.join(WRITABLE_DIR, 'repodata')
+REPO_DIR = os.path.join(WRITABLE_DIR, 'repos')
+
+for path in [WRITABLE_DIR, DATA_DIR, REPO_DIR]:
+    if not os.path.exists(path):
+        os.mkdir(path)
 
 STATIC_ROOT = os.path.join(PROJECT_DIR, '..', 'static')
 STATIC_URL = '/static/'
 ADMIN_MEDIA_PREFIX = '/static/admin/'
+STATICFILES_DIRS = [os.path.join(PROJECT_DIR, 'static')]
 
-SECRET_KEY = '%klx3s$+!8dvkd1f-*$z3b#!ce@7l&rh5gaml#+(gvek3q296*'
+SECRET_KEY = '%klx3s$+!8dvkd1f-*$z3b#!ce@7l&rh5gaml#+(gveksdg3q296*'
 
 TEMPLATE_LOADERS = [
     'django.template.loaders.filesystem.Loader',
@@ -37,12 +44,11 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'github_auth.middleware.GithubUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'djangosecure.middleware.SecurityMiddleware',
 ]
 
-ROOT_URLCONF = 'project.urls'
+ROOT_URLCONF = 'urls'
 
 SECURE_SSL_REDIRECT = True
 SECURE_FRAME_DENY = True
@@ -60,10 +66,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'south',
     'djangosecure',
-    'floppyforms',
-    'project',
-    'checklists',
-    'backbone_tastypie',
+    'stats',
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [
@@ -74,8 +77,6 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.request",
 ]
 
-GITHUB_CLIENT_ID = 'f273b3e2e141cd3e597c'
-GITHUB_CLIENT_SECRET = 'ec845c2acf6b56231ad990afee04993fb9b30753'
 
 try:
     from local_settings import *

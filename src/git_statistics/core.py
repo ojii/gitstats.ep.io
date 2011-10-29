@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from dulwich import repo
-from stats.api import RepoStatistics
+from git_statistics.api import RepoStatistics
 
 def _iter_commits(repo):
     walker = repo.get_graph_walker()
