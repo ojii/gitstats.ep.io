@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.db.models.signals import pre_save
 from django.template.defaultfilters import slugify
+from dulwich.client import get_transport_and_path
+from dulwich.repo import Repo
 import os
-import subprocess
+import sys
 
 class Slugifier(object):
     def __init__(self, model, target, source):
@@ -37,8 +39,12 @@ def auto_slug(model, target, source):
 
 
 def update_git(repourl, repodir):
-    # TODO: do this with dulwich, not subprocess
+    client, host_path = get_transport_and_path(repourl)
     if os.path.exists(repodir):
-        subprocess.check_call(['git', 'fetch', 'origin'], cwd=repodir)
+        repo = Repo(repodir)
     else:
-        subprocess.check_call(['git', 'clone', repourl, repodir])
+        repo = Repo.init(repodir, mkdir=True)
+    remote_refs = client.fetch(host_path, repo,
+        determine_wants=repo.object_store.determine_wants_all,
+        progress=sys.stdout.write)
+    repo["HEAD"] = remote_refs["HEAD"]
