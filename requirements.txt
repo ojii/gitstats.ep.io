@@ -1,3 +1,4 @@
 dulwich
 python-dateutil
 django
+south
