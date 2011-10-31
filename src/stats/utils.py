@@ -4,6 +4,7 @@ from django.template.defaultfilters import slugify
 from dulwich.client import get_transport_and_path
 from dulwich.repo import Repo
 import os
+import shutil
 import sys
 
 class Slugifier(object):
@@ -40,11 +41,10 @@ def auto_slug(model, target, source):
 
 def update_git(repourl, repodir):
     client, host_path = get_transport_and_path(repourl)
+    # todo: make fetch work
     if os.path.exists(repodir):
-        repo = Repo(repodir)
-    else:
-        repo = Repo.init(repodir, mkdir=True)
+        shutil.rmtree(repodir)
+    repo = Repo.init(repodir, mkdir=True)
     remote_refs = client.fetch(host_path, repo,
-        determine_wants=repo.object_store.determine_wants_all,
         progress=sys.stdout.write)
     repo["HEAD"] = remote_refs["HEAD"]
