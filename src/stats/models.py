@@ -13,6 +13,7 @@ class Repository(models.Model):
     repourl = models.CharField(max_length=255, unique=True)
     updated = models.DateTimeField(auto_now=True)
     built = models.BooleanField(default=False)
+    autobuild = models.BooleanField(default=False)
     
     class Meta:
         ordering = ['name']

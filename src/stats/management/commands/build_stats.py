@@ -13,7 +13,7 @@ class Command(BaseCommand):
             if len(repos) != len(args):
                 raise CommandError('One or more slug invalid')
         else:
-            repos = Repository.objects.all()
+            repos = Repository.objects.filter(autobuild=True)
         for repo in repos:
             repo.build()
             self.stdout.write('Successfully built repo "%s"\n' % repo)
