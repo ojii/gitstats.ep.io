@@ -67,7 +67,7 @@ def main(repopath):
         new_authors.append((timestamp, month_new_authors))
 
     charts = Charts()
-    charts.addChart('chart1').chart(
+    charts.new_chart('chart1').chart(
         renderTo='chart1',
         zoomType='x',
     ).title(
@@ -105,7 +105,7 @@ def main(repopath):
         'yAxis': 2,
         'xAxis': 0,
     })
-    charts.addChart('chart2').chart(
+    charts.new_chart('chart2').chart(
         renderTo='chart2',
         zoomType='x',
     ).title(

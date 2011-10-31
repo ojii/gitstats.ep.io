@@ -34,9 +34,8 @@ def build(repopath, name):
         cumulative_commits.append((timestamp, total_commits))
         new_authors.append((timestamp, month_new_authors))
 
-    charts = Charts()
-    charts.addChart('chart1').chart(
-        renderTo='chart1',
+    charts = Charts('container')
+    charts.new_chart().chart(
         zoomType='x',
     ).title(
         text='%s authors statistics' % name
@@ -73,8 +72,7 @@ def build(repopath, name):
         'yAxis': 2,
         'xAxis': 0,
     })
-    charts.addChart('chart2').chart(
-        renderTo='chart2',
+    charts.new_chart().chart(
         zoomType='x',
     ).title(
         text='%s commit statistics' % name
