@@ -5,7 +5,7 @@ from stats.models import Repository
 
 class Command(BaseCommand):
     args = '<project-slug project-slug ...>'
-    help = 'Closes the specified poll for voting'
+    help = 'Build stats'
 
     def handle(self, *args, **options):
         if args:

@@ -25,11 +25,15 @@ class Repository(models.Model):
     def get_absolute_url(self):
         return reverse('repository', kwargs={'slug': self.slug})
     
+    @property
+    def repodatapath(self):
+        return os.path.join(settings.DATA_DIR, '%s.js' % self.slug)
+    
     def build(self):
         repodir = os.path.join(settings.REPO_DIR, self.slug)
         update_git(self.repourl, repodir)
         data = build(repodir, self.name)
-        jspath = os.path.join(settings.DATA_DIR, '%s.js' % self.slug)
+        jspath = self.repodatapath
         with open(jspath, 'w') as fobj:
             fobj.write(str(data))
         self.built = True
