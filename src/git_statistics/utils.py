@@ -8,6 +8,8 @@ def simple_method_cacher(method):
         if not hasattr(self, '_%s_cache' % method.__name__):
             setattr(self, '_%s_cache' % method.__name__, {})
         cache = getattr(self, '_%s_cache' % method.__name__)
+        if self not in cache:
+            cache[self] = {}
         try:
             value = cache[self][args]
         except KeyError:
