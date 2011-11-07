@@ -27,7 +27,7 @@ def build(repopath, name):
         commitcount = len(stats.get_commits_by_month(year, month))
         month_new_authors = len(authors.difference(total_authors))
         total_authors.update(authors)
-        timestamp = time.mktime(datetime.date(year=year, month=month, day=1).timetuple()) * 1000
+        timestamp = time.mktime(datetime.date(year=year, month=month, day=2).timetuple()) * 1000
         total_commits += commitcount
         active_authors.append((timestamp, authorcount))
         commits.append((timestamp, commitcount))
