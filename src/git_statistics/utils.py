@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-
+def author_factory(author_string):
+    from stats.models import Author
+    return Author.objects.get_or_create(author_string)
 
 def simple_method_cacher(method):
     def _decorator(self, *args):

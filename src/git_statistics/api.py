@@ -101,6 +101,10 @@ class RepoStatistics(object):
     def get_active_author_count_by_month(self, year, month):
         return len(self.get_active_authors_by_month(year, month))
     
+    @simple_method_cacher
+    def get_author_commit_count_by_month(self, author, year, month):
+        return len(list(self.iter_author_commits_by_month(author, year, month)))
+    
     def iter_history_months(self):
         now = datetime.datetime.now()
         start = now - datetime.timedelta(days=self.get_age())
@@ -118,3 +122,8 @@ class RepoStatistics(object):
     def iter_commit_count_by_month(self):
         for year, month in self.iter_history_months():
             yield year, month, len(self.get_commits_by_month(year, month))
+    
+    def iter_author_commits_by_month(self, author, year, month):
+        for commit in self.get_commits_by_month(year, month):
+            if commit.author == author:
+                yield commit

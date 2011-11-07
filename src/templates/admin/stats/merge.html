@@ -1,0 +1,68 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_list adminmedia stats_admin_tags %}
+{% load url from future %}
+
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelists.css" />
+  {{ media.css }}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{{ media.js }}
+{% endblock %}
+
+{% block bodyclass %}change-list{% endblock %}
+
+{% if not is_popup %}
+  {% block breadcrumbs %}
+    <div class="breadcrumbs">
+      <a href="../../">
+        {% trans "Home" %}
+      </a>
+       &rsaquo;
+       <a href="../">
+         {{ app_label|capfirst }}
+      </a>
+      &rsaquo;
+      Authors - Merge
+    </div>
+  {% endblock %}
+{% endif %}
+
+{% block coltype %}flex{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    {% block object-tools %}
+    {% endblock %}
+    <div class="module" id="changelist">
+      {% block search %}{% endblock %}
+      {% block date_hierarchy %}{% endblock %}
+
+      {% block filters %}
+      {% endblock %}
+
+      {% block result_list %}
+		<div class="results">
+		<table id="result_list">
+		<thead>
+		<tr>
+		<th scope="col">
+		  <span class="text">Author</span>
+		</th>
+		</tr>
+		</thead>
+		<tbody>
+		{% for author in queryset %}
+		<tr class="{% cycle 'row1' 'row2' %}"><td><strong><a href="{% url 'admin:stats_author_merge' author.pk author|get_others:primary_keys %}">{{ author }}</a></strong></td></tr>
+		{% endfor %}
+		</tbody>
+		</table>
+		</div>
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}

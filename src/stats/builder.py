@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from git_statistics.core import Repo
+from collections import defaultdict
 from highcharts.core import Charts
 import datetime
 import time
@@ -9,6 +9,7 @@ def build(repopath, name):
     Returns an instance of `highcharts.core.Charts` filled with the data of
     `repopath`
     """
+    from git_statistics.core import Repo
     repo = Repo(repopath)
     stats = repo.get_stats()
     active_authors = []
@@ -18,12 +19,12 @@ def build(repopath, name):
     new_authors = []
     total_commits = 0
     cumulative_commits = []
+    author_month_commits = defaultdict(list)
     
     for year, month in stats.iter_history_months():
         authors = stats.get_active_authors_by_month(year, month)
         authorcount = len(authors)
         commitcount = len(stats.get_commits_by_month(year, month))
-        authors = stats.get_active_authors_by_month(year, month)
         month_new_authors = len(authors.difference(total_authors))
         total_authors.update(authors)
         timestamp = time.mktime(datetime.date(year=year, month=month, day=1).timetuple()) * 1000
@@ -33,7 +34,10 @@ def build(repopath, name):
         cumulative_authors.append((timestamp, len(total_authors)))
         cumulative_commits.append((timestamp, total_commits))
         new_authors.append((timestamp, month_new_authors))
-
+        for author in authors:
+            author_commit_count = stats.get_author_commit_count_by_month(author, year, month)
+            author_month_commits[author].append((timestamp, author_commit_count))
+    
     charts = Charts('container')
     charts.new_chart().chart(
         zoomType='x',
@@ -99,5 +103,21 @@ def build(repopath, name):
         'yAxis': 1,
         'xAxis': 0,
     })
+    
+    chart3 = charts.new_chart()
+    chart3.chart(
+        zoomType='x'
+    ).title(
+        text='Author commits over time'
+    ).xAxis.append({
+        'type': 'datetime',
+    })
+    for author, data in sorted(author_month_commits.items()):
+        chart3.series.append({
+            'name': author.name,
+            'data': data,
+            'type': 'line',
+            'showInLegend': False,
+        })
     
     return charts
